@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from yahoo_finance import Share
 import time
  
-
+myargs = ""
 overridewarning = "You are attempting to override an already saved price.  Re-Run and specify -o to override purchase price"
 
 
@@ -12,6 +12,7 @@ def create_config(path):
     """
     Create a config file
     """
+    #global myargs
     config = ConfigParser.ConfigParser()
     config.add_section(myargs.ticker)
     config.set(myargs.ticker, "Init Tracking", mydate)
@@ -26,6 +27,21 @@ def create_config(path):
         config.write(config_file)
  
  
+def create_record(path):
+
+    config = ConfigParser.ConfigParser()
+    config.add_section(myargs.ticker)
+    config.set(myargs.ticker, "Init Tracking", mydate)
+    config.set(myargs.ticker, "last change", mydate)
+    config.set(myargs.ticker, "Purchase", gprice)
+    config.set(myargs.ticker, "Support", myargs.support)
+    config.set(myargs.ticker, "Resistance", myargs.resistance)
+    config.set(myargs.ticker, "Stop", myargs.stop)
+    config.set(myargs.ticker, "Target", myargs.target)
+ 
+    with open(path, "wb") as config_file:
+        config.write(config_file)
+
 def get_config(path):
     """
     Returns the config object
@@ -109,10 +125,39 @@ def readConfig():
             print ' %s = %s ' % (name, value)
         print
 
+def updatePrice():
+    if myargs.price > 0:                                 
+        print update_setting(path, myargs.ticker, 'Purchase', myargs.price)
+    else:
+        print update_setting(path, myargs.ticker, 'Purchase', myprice)
+
+def updateSupport():
+    #if you specify a support level, update it.
+    if myargs.support > 0:
+        update_setting(path, myargs.ticker, 'support', myargs.support)
+
+def updateResistance():
+    #if a resistance level is specified, update it.
+    if myargs.resistance > 0:
+        update_setting(path, myargs.ticker, 'resistance', myargs.resistance)
+
+def updateStop():
+    if myargs.stop > 0:
+        update_setting(path, myargs.ticker, 'stop', myargs.stop)
+
+def updateTarget():
+    if myargs.target > 0:
+        update_setting(path, myargs.ticker, 'target', myargs.target)
+
+def updateRecord():
+    if myargs.price > 0 or myargs.support > 0 or myargs.resistance > 0 or myargs.stop > 0 or myargs.target > 0:
+        update_setting(path, myargs.ticker, 'last change', mytime)
+
+
 
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-    path = "3.ini"
+    path = "4.ini"
     #font = get_setting(path, 'Settings', 'font')
     #font_size = get_setting(path, 'Settings', 'font_size')
  
@@ -122,38 +167,25 @@ if __name__ == "__main__":
 
 
 #set args
-
-
-    myargs = getArgs()
-    mydate = getTime()
     
-    mytime = getTime()
-    mystock = getStock(myargs.ticker)
-    myprice = getPrice(mystock)
-    myargsprice = myargs.price
-    #print myprice
-    mysupport = myargs.support
-    myresistance = myargs.resistance
-    mytarget = myargs.target
-    mystop = myargs.stop
-    myexit = myargs.target
+myconfig = get_config(path)
+myargs = getArgs()
+mydate = getTime()
+
+mytime = getTime()
+mystock = getStock(myargs.ticker)
+myprice = getPrice(mystock)
+myargsprice = myargs.price
+#print myprice
+mysupport = myargs.support
+myresistance = myargs.resistance
+mytarget = myargs.target
+mystop = myargs.stop
+myexit = myargs.target
 
 
-#readConfig()
-
-myconfig = get_config(path) #This get's the config file; if none exists it creates one with create_config and populates it initally.
-if myconfig is not None: 
-    for section_name in myconfig.sections():
-         #print 'Section: ', section_name #this prints out
-         #print 'Options:', myconfig.options(section_name)
-         #for name, value in myconfig.items(section_name):
-         #   print ' %s = %s ' % (name, value)
-        print
-else:
-    print "Empty"
-
+#If you're getting the config (-g), get the current config.
 if myargs.config is True: #if argument -g (get config) is specified, it reports back what that ticker has in the config file.
-
     print myargs.ticker
     #print get_setting()
     get_setting(path, myargs.ticker, 'Purchase') #3.ini, oled, Purhcase
@@ -163,52 +195,18 @@ if myargs.config is True: #if argument -g (get config) is specified, it reports 
     get_setting(path, myargs.ticker, 'target')
     get_setting(path, myargs.ticker, 'last change')
     get_setting(path, myargs.ticker, 'init tracking')
-
-    #print "Got from config: " + myprice
 else:
-    if myargs.ticker is not "": # If the config file wasn't specified, and a a -t argument exists... so run...
-        if myargs.price is None and myargs.override is True: #if myargs.price is none that means that we've done a price lookup and we're going to override whatever is in the config file
-            update_setting(path, myargs.ticker, 'Purchase', myprice)
-            update_setting(path, myargs.ticker, 'last change', mydate)
-            if myargs.support is "":
-                print "Empty!"
-            if myargs.support is not None:
-                update_setting(path, myargs.ticker, 'support', mysupport)
-            if myargs.resistance is not None:
-                update_setting(path, myargs.ticker, 'resistance', myresistance)
-            if myargs.stop is not None:
-                update_setting(path, myargs.ticker, 'stop', mystop)
-            if myargs.target is not None:
-                update_setting(path, myargs.ticker, 'target', mytarget)
-            print "Existing record updated: ", myargs.ticker, myprice
-            #readConfig() #bugtesting 
-        elif myargs.price > 0 and myargs.override is True: #if -p price has been specified and override is true...
-                update_setting(path, myargs.ticker, 'Purchase', myargs.price)
-                update_setting(path, myargs.ticker, 'last change', mydate)
-                update_setting(path, myargs.ticker, 'support', mysupport)
-                update_setting(path, myargs.ticker, 'resistance', myresistance)
-                update_setting(path, myargs.ticker, 'stop', mystop)
-                update_setting(path, myargs.ticker, 'target', mytarget)
-                update_setting(path, myargs.ticker, 'last change', mytime)
-        else:
-            print overridewarning
-            #readConfig()
-        
-
-
-
-    # print args
-    # print mytime
-    # print myargs.ticker
-    # print myprice
-    # print mysupport
-    # print myresistance
-    # print mystop
-    # print myexit
-
-
-
-
-    # print "getargs stuff:" + str(blah)
-    # print "getargs.price: " + str(blah.price)
-    # print "getargs.ticker: " + str(blah.ticker)
+    parser = ConfigParser.ConfigParser()
+    parser.read(path)
+    for section_name in parser.sections():
+            print 'Section: ', section_name
+            currentsection = section_name
+            if str(myargs.ticker) == str(section_name):
+                updatePrice()
+                updateSupport()
+                updateResistance()
+                updateStop()
+                updateTarget()
+                updateRecord()
+            else:
+                create_record(path)
