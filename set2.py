@@ -169,11 +169,16 @@ else:
         if myargs.price is None and myargs.override is True: #if myargs.price is none that means that we've done a price lookup and we're going to override whatever is in the config file
             update_setting(path, myargs.ticker, 'Purchase', myprice)
             update_setting(path, myargs.ticker, 'last change', mydate)
-            update_setting(path, myargs.ticker, 'support', mysupport)
-            update_setting(path, myargs.ticker, 'resistance', myresistance)
-            update_setting(path, myargs.ticker, 'stop', mystop)
-            update_setting(path, myargs.ticker, 'target', mytarget)
-            update_setting(path, myargs.ticker, 'last change', mytime)
+            if myargs.support is "":
+                print "Empty!"
+            else: 
+                update_setting(path, myargs.ticker, 'support', mysupport)
+            if myargs.resistance is not "":
+                update_setting(path, myargs.ticker, 'resistance', myresistance)
+            if myargs.stop is not None:
+                update_setting(path, myargs.ticker, 'stop', mystop)
+            if myargs.target is not none:
+                update_setting(path, myargs.ticker, 'target', mytarget)
             print "Existing record updated: ", myargs.ticker, myprice
             #readConfig() #bugtesting 
         elif myargs.price > 0 and myargs.override is True: #if -p price has been specified and override is true...
