@@ -144,17 +144,18 @@ if __name__ == "__main__":
 myconfig = get_config(path) #This get's the config file; if none exists it creates one with create_config and populates it initally.
 if myconfig is not None: 
     for section_name in myconfig.sections():
-        # print 'Section: ', section_name #this prints out
-        # print 'Options:', myconfig.options(section_name)
-        # for name, value in myconfig.items(section_name):
-        #     print ' %s = %s ' % (name, value)
+         #print 'Section: ', section_name #this prints out
+         #print 'Options:', myconfig.options(section_name)
+         #for name, value in myconfig.items(section_name):
+         #   print ' %s = %s ' % (name, value)
         print
 else:
     print "Empty"
 
 if myargs.config is True: #if argument -g (get config) is specified, it reports back what that ticker has in the config file.
 
-    #second block
+    print myargs.ticker
+    #print get_setting()
     get_setting(path, myargs.ticker, 'Purchase') #3.ini, oled, Purhcase
     get_setting(path, myargs.ticker, 'support')
     get_setting(path, myargs.ticker, 'resistance')
@@ -171,13 +172,13 @@ else:
             update_setting(path, myargs.ticker, 'last change', mydate)
             if myargs.support is "":
                 print "Empty!"
-            else: 
+            if myargs.support is not None:
                 update_setting(path, myargs.ticker, 'support', mysupport)
-            if myargs.resistance is not "":
+            if myargs.resistance is not None:
                 update_setting(path, myargs.ticker, 'resistance', myresistance)
             if myargs.stop is not None:
                 update_setting(path, myargs.ticker, 'stop', mystop)
-            if myargs.target is not none:
+            if myargs.target is not None:
                 update_setting(path, myargs.ticker, 'target', mytarget)
             print "Existing record updated: ", myargs.ticker, myprice
             #readConfig() #bugtesting 
