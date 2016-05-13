@@ -85,6 +85,16 @@ def getTime():
     today = time.strftime('%Y-%m-%d')
     return today
 
+def readConfig():
+    global path
+    parser = ConfigParser.ConfigParser()
+    parser.read(path)
+    for section_name in parser.sections():
+        print 'Section: ', section_name
+        print 'Options:', parser.options(section_name)
+        for name, value in parser.items(section_name):
+            print ' %s = %s ' % (name, value)
+        print
 
 def getStock(self):
     return Share(self)
@@ -109,6 +119,7 @@ def getArgs():
     return args
 
 
+
 if __name__ == "__main__":
     path = "2.ini"
     # blah = getArgs()
@@ -117,8 +128,8 @@ if __name__ == "__main__":
     # print "getargs.ticker: " + str(blah.ticker)
     myargs = getArgs()
     mydate = getTime()
-    print mydate  
-    print gticker, gprice, gsupport
+    #print mydate  
+    #print gticker, gprice, gsupport
     if myargs.ticker is not "": #better than using a global variable; myargs init'd as getArgs returns stuf like myargs.ticker
         #ticker = args.ticker
         mystock = getStock(gticker)
@@ -129,6 +140,10 @@ if __name__ == "__main__":
             crudConfig(path)
         else:
             crudConfig(path)
+
+readConfig()
+
+
 
 
 
