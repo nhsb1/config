@@ -6,8 +6,12 @@ import time
 from argparse import ArgumentParser 
 from yahoo_finance import Share
 
+#source for "significance" of daily performance: http://seekingalpha.com/article/167991-s-and-p-500-60-years-of-monthly-and-daily-percentage-price-changes?page=2
+
 url = 'https://en.wikipedia.org/wiki/List_of_largest_daily_changes_in_the_S%26P_500_Index'
-count = 0
+
+dailyupextremempercent = 1.01
+dailydownextremepercent = -.98
 
 def getSoup():
 	global url, target
@@ -70,68 +74,81 @@ def getTop20ByPercent():
 	#print t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20
 	return top20
 
+def getBottom20ByPercent():
+	bottom20=[]
+	bottom20.append(str(mysoup[313].text))
+	bottom20.append(str(mysoup[318].text))
+	bottom20.append(str(mysoup[323].text))
+	bottom20.append(str(mysoup[328].text))
+	bottom20.append(str(mysoup[333].text))
+	bottom20.append(str(mysoup[338].text))
+	bottom20.append(str(mysoup[343].text))
+	bottom20.append(str(mysoup[348].text))
+	bottom20.append(str(mysoup[353].text))
+	bottom20.append(str(mysoup[358].text))
+	bottom20.append(str(mysoup[363].text))
+	bottom20.append(str(mysoup[368].text))
+	bottom20.append(str(mysoup[373].text))
+	bottom20.append(str(mysoup[378].text))
+	bottom20.append(str(mysoup[383].text))
+	bottom20.append(str(mysoup[388].text))
+	bottom20.append(str(mysoup[393].text))
+	bottom20.append(str(mysoup[398].text))
+	bottom20.append(str(mysoup[403].text))
+	bottom20.append(str(mysoup[408].text))
+
+	return bottom20
+
+def assessUpPerformance():
+	daysbeat = []
+	count = 0
+	test = 0.01
+	print "S&P 500 Index Percent Change: " + str(daysp500percentchange) + "%"
+	print "S&P 500 Index Percent Move Significance: " + str(dailyupextremempercent)
+
+	for item in top20bypercent:
+		item = item[1:]
+		if float(daysp500percentchange) >= float(item):
+			count = count + 1
+			daysbeat.append(str(item))
+	if count >= 1:
+		print "Today was better than: " + str(count) + " days, in the top 20 returns for the S&P 500 ever!!"
+	elif  float(daysp500percentchange) > float(dailyupextremempercent):
+		print dailyupextremempercent, daysp500percentchange
+		print str(daysp500percentchange) + " is significant in terms of daily price movement!"
+	else:
+		print "Assessment: Normal price action in the S&P 500 index. "
+
+def assessDownPerformance():
+	daysbeat = []
+	count = 0
+	print "S&P 500 Index Percent Change: " + str(daysp500percentchange) + "%"
+	print "S&P 500 Index Percent Move Significance: " + str(dailydownextremepercent)
+	for item in bottom20bypercent:
+		item = item[1:]
+		if float(daysp500percentchange) >= float(item):
+			count = count + 1
+			daysbeat.append(str(item))
+	if count >= 1:
+		print "Today was worse than: " + str(count) + " days, in the BOTTOM 20 returns for the S&P 500 ever!!"
+	elif float(dailydownextremepercent) >= float(daysp500percentchange):
+		print str(daysp500percentchange) + " is significant in terms of daily price movement!"  
+	else:
+		print "Assessment: Normal price action in the S&P 500 index. "
+
+
 mypercent = 7.5
 mysoup = getSoup()
-top20bypercent = getTop20ByPercent()
+
 daysp500percentchange = sp500info()
-daysbeat = []
-print "S&P 500 Index Percent Change: " + str(daysp500percentchange) + "%"
-for item in top20bypercent:
-	item = item[1:]
-	if float(daysp500percentchange) >= float(item):
-		count = count + 1
-		daysbeat.append(str(item))
-if count >= 1:
-	print "Today was better than: " + str(count) + " days, in the top 20 returns for the S&P 500 ever!!"
+#print daysp500percentchange
+
+if daysp500percentchange >= 0:
+	#print "UP!"
+	top20bypercent = getTop20ByPercent()
+	assessUpPerformance()
 else:
-	print "Pretty normal day"
+	#print "Down!"
+	bottom20bypercent = getBottom20ByPercent()
+	assessDownPerformance()
 
-
-
-# i=0
-# for item in mysoup:
-# 	print i, item
-# 	i+=1
-
-#1, 212 - highest gain (11.58)
-#2, 217, 10.79
-#3, 222, 9.10 
-#4, 227, 7.08
-#5, 232, 6.92
-#6, 237, 6.47
-#7, 242, 6.37
-#8, 247, 6.32,
-#9, 252, 5.73
-#10, 257, 5.42
-#11, 262, 5.41
-#12, 267, 5.33
-#13, 272, 5.14
-#14, 277, 5.12
-#15, 282, 5.09
-#16, 287, 5.02
-#17, 292, 5.01
-#18, 297, 4.93
-#19, 302, 4.77
-#20, 317, 4.76
-#
-#1, 313, -20.47
-#2, 318, -9.03
-#3, 323, -8.93
-#4, 328, -8.81
-#5, 333, -8.28
-#6, 338, 7.62
-#7, 343, -6.87
-#8, 348, 6.80
-#9, 353, 6.77
-#10, 358, 6.71
-#11, 363, 6.68
-#12, 368, 6.66
-#13, 373, 6.62
-#14, 378, 6.12,
-#15, 383, 6.12,
-#16, 388, 6.10
-#17, 393, 5.83
-#18, 398, 5.74, 
-#19, 403, 5.38
-#20, 408, 5.28
-#
