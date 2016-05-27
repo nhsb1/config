@@ -70,14 +70,17 @@ def getPrice(self):
 
 def priceperf(currentprice, purchaseprice):
 	if currentprice >= purchaseprice:
-		print currentprice, purchaseprice
+		#print currentprice, purchaseprice
 		profitloss = float(currentprice) - float(purchaseprice)
 	else:
-		print currentprice, purchaseprice
+		#print currentprice, purchaseprice
 		loss = float(purchaseprice) - float(currentprice)
 		loss = (loss)*-1
 		profitloss = loss
 	return profitloss	
+
+def currentPriceReport(currentprice):
+	print "Current Price: " + currentprice
 
  
 
@@ -97,6 +100,8 @@ if __name__ == "__main__":
 		#print purchaseprice
 		stock = getStock(ticker)
 		currentprice = getPrice(stock)
+		currentPriceReport(currentprice)
+
 		pnl = priceperf(currentprice, purchaseprice)
 		print pnl
 
