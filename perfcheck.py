@@ -56,6 +56,7 @@ def get_setting(path, section, setting):
 def getArgs():
     parser = ArgumentParser(description = currentrelease)
     parser.add_argument("-i", "--init", required=True, dest="init", help="init file to use", metavar="init")
+    parser.add_argument("-s", "--shares", required=False, dest="shares", help="Shares held", metavar="init")
     parser.add_argument("-t", "--ticker", required=True, dest="ticker", help="ticker to check", metavar="ticker")
     parser.add_argument("-a", "--assess", required=False, dest="assess", help="assess performance", action="store_true")
     parser.add_argument("-d", "--debug", required=False, dest="debug", help="prints contents of ini file", action="store_true")
@@ -82,7 +83,39 @@ def priceperf(currentprice, purchaseprice):
 def currentPriceReport(currentprice):
 	print "Current Price: " + currentprice
 
- 
+def pnlReport(currentprice, purchaseprice):
+	pnl = priceperf(currentprice, purchaseprice)
+	print "Profit/Loss: " + str(pnl)
+
+def supportReport(currentprice, support):
+	print "Support Set: " + str(support)
+
+def stopReport(currentprice, stop):
+	print "Stop Set: " + str(stop)
+
+def resistanceReport(currentprice, resistance):
+	print "Resistance Set: " + str(resistance)
+
+def targetReport(currentprice, target):
+	print "Target: " + str(target)
+
+def stopAction(currentprice, stop):
+	if stop > currentprice:
+		stoploss = float(stop) - float(currentprice)
+		#print "STOP VIOLATION: SELL!, LOSS: " + str(stoploss)
+	else:
+		stoploss = 0
+	return stoploss
+
+def targetAction(currentprice, target):
+	if currentprice > target:
+		profit = float(target) - float(currentprice)
+		print "TARGET HIT: SELL!, PROFIT: " + str(profit)
+	else:
+		profit = 0
+	return profit
+
+
 
 #----------------------------------------------------------------------
 if __name__ == "__main__":
@@ -101,10 +134,26 @@ if __name__ == "__main__":
 		stock = getStock(ticker)
 		currentprice = getPrice(stock)
 		currentPriceReport(currentprice)
+		
+		pnlReport(currentprice, purchaseprice)
+		stopReport(currentprice, stop)
+		resistanceReport(currentprice, resistance)
+		supportReport(currentprice, resistance)
+		saloss = stopAction(currentprice, stop)
+		if saloss is not 0:
+			print "STOP VIOLATION: SELL!, LOSS: " + str(saloss)
 
-		pnl = priceperf(currentprice, purchaseprice)
-		print pnl
+		targetReport(currentprice, target)
+		targetAction(currentprice, target)
+		if myargs.shares:
+			shares = myargs.shares
+			if stopAction(currentprice, stop) > 0:
+				myloss = stopAction(currentprice, stop)
+				currentloss =  float(myloss) * float(shares)
+				print "Current Loss: " + str(currentloss)
+			
 
+	
 
 
 
@@ -115,7 +164,7 @@ if __name__ == "__main__":
 
 	if myargs.assess:
 		myperf = assess()
-		print myperf
+		
 
 
 
