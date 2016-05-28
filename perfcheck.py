@@ -107,9 +107,10 @@ def stopAction(currentprice, stop):
 		stoploss = 0
 	return stoploss
 
-def targetAction(currentprice, target):
+def targetAction(currentprice, target, purchaseprice):
 	if currentprice > target:
-		profit = float(target) - float(currentprice)
+		profit = float(currentprice) - float(purchaseprice)
+		print str(currentprice) + "+" str(purchaseprice)
 		print "TARGET HIT: SELL!, PROFIT: " + str(profit)
 	else:
 		profit = 0
@@ -144,20 +145,21 @@ if __name__ == "__main__":
 			print "STOP VIOLATION: SELL!, LOSS: " + str(saloss)
 
 		targetReport(currentprice, target)
-		targetAction(currentprice, target)
+		print target + "!!!!!!!!"
+		targetAction(currentprice, target, purchaseprice)
 		if myargs.shares:
 			shares = myargs.shares
 			if stopAction(currentprice, stop) > 0:
 				myloss = stopAction(currentprice, stop)
 				currentloss =  float(myloss) * float(shares)
 				print "Current Loss: " + str(currentloss)
+			if targetAction(currentprice, target, purchaseprice) >0:
+				myprofit = targetAction(currentprice, target, purchaseprice) >0:
+				currentprofit = float(myprofit) * float(shares)
+				print "Current Profit: " + str(currentprofit)
 			
 
 	
-
-
-
-
 	if myargs.debug:
 		readConfig(path)
 
