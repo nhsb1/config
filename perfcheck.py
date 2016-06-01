@@ -59,6 +59,7 @@ def getArgs():
     parser.add_argument("-s", "--shares", required=False, dest="shares", help="Shares held", metavar="init")
     parser.add_argument("-t", "--ticker", required=True, dest="ticker", help="ticker to check", metavar="ticker")
     parser.add_argument("-a", "--assess", required=False, dest="assess", help="assess performance", action="store_true")
+    parser.add_argument("-ma","--movingaverage", dest="ma", help="Gets moving average; specify either 50 or 200 (e.g. -ma 200, -ma 50)", default=[], action='append')
     parser.add_argument("-d", "--debug", required=False, dest="debug", help="prints contents of ini file", action="store_true")
     args = parser.parse_args()
     return args
@@ -110,12 +111,26 @@ def stopAction(currentprice, stop):
 def targetAction(currentprice, target, purchaseprice):
 	if currentprice > target:
 		profit = float(currentprice) - float(purchaseprice)
-		print str(currentprice) + "+" str(purchaseprice)
-		print "TARGET HIT: SELL!, PROFIT: " + str(profit)
+		#print str(currentprice) + "+" str(purchaseprice)
+		#print "TARGET HIT: SELL!, PROFIT: " + str(profit)
 	else:
 		profit = 0
 	return profit
 
+def targetHit(target):
+	return "Target hit at " + target + ", sell!"
+
+def ma50work(stock):
+	ma50 = stock.get_50day_moving_avg()
+	output.append(ma50)
+	selections.append('50-day MA: ')
+	return ma50
+
+def ma200work(stock):
+	ma200 = stock.get_200day_moving_avg()
+	output.append(ma200)
+	selections.append('200-day MA: ')
+	return ma200
 
 
 #----------------------------------------------------------------------
@@ -145,7 +160,7 @@ if __name__ == "__main__":
 			print "STOP VIOLATION: SELL!, LOSS: " + str(saloss)
 
 		targetReport(currentprice, target)
-		print target + "!!!!!!!!"
+		#print target + "!!!!!!!!"
 		targetAction(currentprice, target, purchaseprice)
 		if myargs.shares:
 			shares = myargs.shares
@@ -154,10 +169,19 @@ if __name__ == "__main__":
 				currentloss =  float(myloss) * float(shares)
 				print "Current Loss: " + str(currentloss)
 			if targetAction(currentprice, target, purchaseprice) >0:
-				myprofit = targetAction(currentprice, target, purchaseprice) >0:
+				myprofit = targetAction(currentprice, target, purchaseprice)
 				currentprofit = float(myprofit) * float(shares)
 				print "Current Profit: " + str(currentprofit)
+				print targetHit(target)
 			
+	if myargs.ma:
+		for item in myargs.ma:
+			if item == '50':
+				ma50work(stock)
+			elif item == '200':
+				ma200work(stock)
+			else:
+				print "Specified an invalid moving average (-ma 50 -ma 200 are valid)"		
 
 	
 	if myargs.debug:
