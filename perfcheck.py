@@ -122,14 +122,14 @@ def targetHit(target):
 
 def ma50work(stock):
 	ma50 = stock.get_50day_moving_avg()
-	output.append(ma50)
-	selections.append('50-day MA: ')
+	#output.append(ma50)
+	#selections.append('50-day MA: ')
 	return ma50
 
 def ma200work(stock):
 	ma200 = stock.get_200day_moving_avg()
-	output.append(ma200)
-	selections.append('200-day MA: ')
+	#output.append(ma200)
+	#selections.append('200-day MA: ')
 	return ma200
 
 
@@ -177,9 +177,11 @@ if __name__ == "__main__":
 	if myargs.ma:
 		for item in myargs.ma:
 			if item == '50':
-				ma50work(stock)
+				ma50 = ma50work(stock)
+				print ma50
 			elif item == '200':
-				ma200work(stock)
+				ma200 = ma200work(stock)
+				print ma200
 			else:
 				print "Specified an invalid moving average (-ma 50 -ma 200 are valid)"		
 
