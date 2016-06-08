@@ -4,215 +4,31 @@ import realtime
 from argparse import ArgumentParser
 from yahoo_finance import Share
 import yahoofinancecalc
-import re
-import newhighs
 
 
-#.47 - 
-# - added real-time percent change function (realtimePercentChangeWork)
-#.46 - 
-#- fixed futures output bug counter (counter to counter2)
-#- added real-time change function (realtimeChangeWork)
-
-#- added non-verbose mode; (e.g. "51.22", vs. "Realtimeprice: 51.22")
-
-counter = 0 
-counter2 = 0
-
-
-def realtimeWork(ticker):
-	selections.append('Realtime: ')
-	subrealtimequote = realtime.scraper(myargs.ticker)
-	output.append(subrealtimequote)
-	return subrealtimequote
-
-def priceWork(stock):
-	selections.append('Delayed Price: ')
-	subpricequote = stock.get_price()
-	output.append(subpricequote)
-	return subpricequote
-
-def volumeWork(stock):
-	volume = stock.get_volume()
-	output.append(volume)
-	selections.append('Volume: ')
-	return volume
-
-def changeWork(stock):
-	change = stock.get_change()
-	output.append(change)
-	selections.append('Change: ')
-	return change
-
-def realtimeChangeWork(stock): #I didn't put this in the yahoofinancecalc module because of the realtime 
-	rto = float(stock.get_open())
-	rtp =  float(realtimeprice)
-	realtimechange = yahoofinancecalc.getRealtimeChangeWork(rto, rtp)
-	output.append(realtimechange)
-	selections.append("RT Change: ")
-	return realtimechange
-
-def avgvolumeWork(stock):
-	avgvolume = stock.get_avg_daily_volume()
-	output.append(avgvolume)
-	selections.append('Average Volume: ')
-	return avgvolume
-
-def shortWork(stock):
-	short = stock.get_short_ratio()
-	output.append(short)
-	selections.append('Short ratio: ')
-	return short
-
-def peWork(stock):
-	pe = stock.get_price_earnings_ratio()
-	output.append(pe)
-	selections.append('PE ratio: ')
-	return pe
-
-def exchangeWork(stock):
-	exchange = stock.get_stock_exchange()
-	output.append(exchange)
-	selections.append('Exchange: ')
-	return exchange
-	
-def ma50work(stock):
-	ma50 = stock.get_50day_moving_avg()
-	output.append(ma50)
-	selections.append('50-day MA: ')
-	return ma50
-
-def ma200work(stock):
-	ma200 = stock.get_200day_moving_avg()
-	output.append(ma200)
-	selections.append('200-day MA: ')
-	return ma200
-
-def marketcapWork(stock):
-	marketcap = stock.get_market_cap()
-	output.append(marketcap)
-	selections.append('Marketcap: ')
-	return marketcap
-
-def openWork(stock):
-	getopen = stock.get_open()
-	output.append(getopen)
-	selections.append('Open: ')
-	return getopen
-
-def bookWork(stock):
-	getbook = stock.get_book_value()
-	output.append(getbook)
-	selections.append('Book value: ')
-	return getbook
-
-def dividendshareWork(stock):
-	getdiv = stock.get_dividend_share()
-	output.append(getdiv)
-	selections.append('Dividend Share: ')
-	return getdiv
-
-def dividendyieldWork(stock):
-	dividendyield = stock.get_dividend_yield()
-	output.append(dividendyield)
-	selections.append('Dividend yield: ')
-	return dividendyield
-
-def epsWork(stock):
-	eps = stock.get_earnings_share()
-	output.append(eps)
-	selections.append('EPS: ')
-	return eps
-
-def dayhighWork(stock):
-	dayhigh = stock.get_days_high()
-	output.append(dayhigh)
-	selections.append('Day high: ')
-	return dayhigh
-
-def daylowWork(stock):
-	daylow = stock.get_days_low()
-	output.append(daylow)
-	selections.append('Day low: ')
-	return daylow	
-
-def yearhighWork(stock):
-	yearhigh = stock.get_year_high()
-	output.append(yearhigh)
-	selections.append('52-week High: ')
-	return yearhigh
-
-def yearlowWork(stock):
-	yearlow = stock.get_year_low()
-	output.append(yearlow)
-	selections.append('52-week low: ')
-	return yearlow
-
-def ebitdaWork(stock):
-	ebitda = stock.get_ebitda()
-	output.append(ebitda)
-	selections.append('ebitda: ')
-	return ebitda
-
-def psWork(stock):
-	ps = stock.get_price_sales()
-	output.append(ps)
-	selections.append('Price to Sales: ')
-	return ps
-
-def pegWork(stock):
-	peg = stock.get_price_earnings_growth_ratio()
-	output.append(peg)
-	selections.append('PEG: ')
-	return peg
-
-def percentchangeWork(stock):
-	change = stock.get_change()
-	getopen = stock.get_open()
-	percentchange = yahoofinancecalc.getPercentChange(stock, change, getopen)
-	percentchange = str(percentchange) + "%"
-	output.append(percentchange)
-	selections.append('Percent Change: ')
-	return percentchange
-
-def realtimePercentChangeWork(stock):
+def getPercentChange(stock):
+	#stock = Share(myargs.ticker)
+	change = float(stock.get_change())
 	getopen = float(stock.get_open())
-	rtp = float(realtimeprice)
-	change = rtp - getopen
-	realtimechange = yahoofinancecalc.getPercentChange(stock, change, getopen)
-	realtimechange = str(realtimechange) + "%"
-	output.append(realtimechange)
-	selections.append("RT Percent Change: ")
-	return realtimechange
 
-def pohWork(stock):
+	if (change is not None) and (getopen is not None):
+		tickerPercentChange = (change/getopen)*100
+		tickerPercentChange = round(tickerPercentChange, 2)
+		return tickerPercentChange
+	else:
+		return 0
+
+def offHigh(stock):
+	myYearHigh = stock.get_year_high()
 	realtimequote = realtime.scraper(myargs.ticker)
-	poh = yahoofinancecalc.offHigh(stock, realtimequote)
-	output.append(poh)
-	selections.append('Percent off high: ')
-	return poh
-
-def polWork(stock):
-	realtimequote = realtime.scraper(myargs.ticker)
-	yearlow = stock.get_year_low()
-	pol = yahoofinancecalc.offlow(stock, realtimequote, yearlow)
-	output.append(pol)
-	selections.append('Percent off low: ')
-	return pol
-
-def poaWork(stock):
-	avgvolume = stock.get_avg_daily_volume()
-	volume = stock.get_volume()
-	poa = yahoofinancecalc.ofAverageVolume(stock, avgvolume, volume)
-	poa = str(poa) + "%"
-	output.append(poa)
-	selections.append('Percent of Average: ')
-	return poa 
+	oh1 = float(myYearHigh) - (float(realtimequote))
+	percentOffHigh = str(round((oh1 / float(realtimequote))*100, 2))+ "%"
+	return percentOffHigh
 
 def getArgs():
-	parser = ArgumentParser(description = 'Quote CMD')
+	parser = ArgumentParser(description = 'Get Realtime ticker from Yahoo-Finance')
 	parser.add_argument("-t", "--ticker", required=False, dest="ticker", help="ticker for lookup", metavar="ticker")
-	parser.add_argument("-f","--futures", dest="futures", help="Get all futures", default=False, action="store_true")
+	parser.add_argument("-f","--futures", dest="futures", help="Get futures", default=False, action="store_true")
 	parser.add_argument("-v","--volume", dest="volume", help="Get volume", default=False, action="store_true")
 	parser.add_argument("-c","--change", dest="change", help="Get day's change", default=False, action="store_true")
 	parser.add_argument("-av","--avgvolume", dest="avgvol", help="Get avgerage volume", default=False, action="store_true")
@@ -238,170 +54,126 @@ def getArgs():
 	parser.add_argument("-peg","--pegratio", dest="peg", help="PEG ratio", default=False, action="store_true")
 	parser.add_argument("-pc","--percentchange", dest="percentchange", help="Percent change", default=False, action="store_true")
 	parser.add_argument("-poh","--percentoffhigh", dest="percentoffhigh", help="Percent off high", default=False, action="store_true")
-	parser.add_argument("-pol","--percentofflow", dest="percentofflow", help="Percent off low", default=False, action="store_true")
-	parser.add_argument("-poa","--percentofaverage", dest="percentofaverage", help="Percent of average volume", default=False, action="store_true")
-	parser.add_argument("-fsp","--spfutures", dest="spfutures", help="Get S&P futures", default=False, action="store_true")
-	parser.add_argument("-fdow","--dowfutures", dest="dowfutures", help="Get DOW futures", default=False, action="store_true")
-	parser.add_argument("-fnas","--nasdaqfutures", dest="nasdaqfutures", help="Get NASDAQ futures", default=False, action="store_true")
-	parser.add_argument("-frow","--rowfutures", dest="rowfutures", help="Get rest of world futures", default=False, action="store_true")
-	parser.add_argument("-nh","--newhighs", dest="newhighs", help="Prints a list of new highs.  If run with -t, only prints ticker if that ticker is in the new high list", default=False, action="store_true")
 	parser.add_argument("-d","--debug", dest="debug", help="debug", default=False, action="store_true")
 	args = parser.parse_args()
 	return args
 
-
 myargs = getArgs()
-output = []
-selections = []
-
-if myargs.newhighs is True:
-	nhsoup = newhighs.getSoup()
-	newhighlist = newhighs.getTickers(nhsoup)
-	if myargs.ticker is not None:
-		for item in newhighlist:
-			if item.lower() == myargs.ticker.lower():
-				print item
-	else:
-		for item in newhighlist:
-			print item
-
-
-
-
-	
-
-
-#mysoup = getSoup()
-# mytickers = []
-# mytickers = getTickers(mysoup)
-
-# for item in mytickers:
-# 	print item
 
 if myargs.futures is True:
 	mySoup = futures.getSoup()
-
-	myFutures = futures.getSPFutures(), futures.getDOWFutures(), futures.getNASDAQFutures(), futures.getROWFutures()
-	futures.printfuturesReport()
-
-#if any of the futures flag (-fsp) have been specified getSoup the webpage that provides futures
-if myargs.spfutures is True or myargs.dowfutures is True or myargs.nasdaqfutures is True or myargs.rowfutures is True:
-	mySoup = futures.getSoup()
-
-if myargs.spfutures is True:
-	#mySoup = futures.getSoup()
-	futures.getSPFutures()
-
-	
-if myargs.dowfutures is True:
-	#mySoup = futures.getSoup()
-	myFutures = futures.getDOWFutures()
-
-if myargs.nasdaqfutures is True:
-	myFutures = futures.getNASDAQFutures()
-
-if myargs.rowfutures is True:
-	myFutures = futures.getROWFutures()
+	myFutures = futures.getFutures()
+	futures.printReport()
 
 if myargs.ticker is not None:
 
 	stock = Share(myargs.ticker)
 	
 	if myargs.realtime is True:
-		realtimeprice = realtimeWork(myargs.ticker)
+		realtimequote = realtime.scraper(myargs.ticker)
+		print realtimequote
 
 	if myargs.price is True:
-		priceWork(stock)
+		price = stock.get_price()
+		print price
 
 	if myargs.volume is True:
-		volumeWork(stock)
-		
-	if myargs.change is True and myargs.price is True:
-		changeWork(stock)
-	elif myargs.change is True and myargs.realtime is True: #If you've specified the realtime flag WITH change, get the change in realtime terms.
-		realtimeChangeWork(stock)
-		
+		volume = stock.get_volume()
+		print volume
+
+	if myargs.change is True:
+		change = stock.get_change()
+		print change
+
 	if myargs.avgvol is True:
-		avgvolumeWork(stock)
+		avgvolume = stock.get_avg_daily_volume()
+		print avgvolume
 
 	if myargs.short is True:
-		shortWork(stock)
+		short = stock.get_short_ratio()
+		print short
 
 	if myargs.peratio is True:
-		peWork(stock)
+		pe = stock.get_price_earnings_ratio()
+		print pe
 
 	if myargs.exchange is True:
-		exchangeWork(stock)
-		
+		exchange = stock.get_stock_exchange()
+
 	if myargs.ma50 is True:
-		ma50work(stock)
+		ma50 = stock.get_50day_moving_avg()
+		print ma50
 
 	if myargs.ma200 is True:
-		ma200work(stock)
-		
+		ma200 = stock.get_200day_moving_avg()
+		print ma200
+
 	if myargs.marketcap is True:
-		marketcapWork(stock)
-		
+		marketcap = stock.get_market_cap()
+		print marketcap
+
 	if myargs.getopen is True:
-		openWork(stock)
+		getopen = stock.get_open()
+		print getopen
 
 	if myargs.getbook is True:
-		bookWork(stock)
+		getbook = stock.get_book_value()
+		print getbook
 
 	if myargs.dividendshare is True:
-		dividendshareWork(stock)
+		getdiv = stock.get_dividend_share()
+		print getdiv
 
 	if myargs.dividendyield is True:
-		dividendyieldWork(stock)
+		dividendyield = stock.get_dividend_yield()
+		print dividendyield
 
 	if myargs.eps is True:
-		epsWork(stock)
+		eps = stock.get_earnings_share()
+		print eps
 
 	if myargs.dayh is True:
-		dayhighWork(stock)
+		dayhigh = stock.get_days_high()
+		print dayhigh
 
 	if myargs.dayl is True:
-		daylowWork(stock)
+		daylow = stock.get_days_low()
+		print daylow
 
 	if myargs.yearhigh is True:
-		yearhighWork(stock)
-		
+		yearhigh = stock.get_year_high()
+		print yearhigh
+
 	if myargs.yearlow is True:
-		yearlowWork(stock)
+		yearlow = stock.get_year_low()
+		print yearlow
 
 	if myargs.ebitda is True:
-		ebitdaWork(stock)
-		
+		ebitda = stock.get_ebitda()
+		print ebitda
+
 	if myargs.ps is True:
-		psWork(stock)
+		ps = stock.get_price_sales()
+		print ps
 
 	if myargs.peg is True:
-		pegWork(stock)
-		
-	if myargs.percentchange is True and myargs.price is True:
-		percentchangeWork(stock)
-	elif myargs.percentchange is True and myargs.realtime is True:
-		#print "Hi!"
-		realtimePercentChangeWork(stock)
+		peg = stock.get_price_earnings_growth_ratio()
+		print peg
+
+	if myargs.percentchange is True:
+		percentchange = getPercentChange(stock)
+		print str(percentchange) + "%"
 
 	if myargs.percentoffhigh is True:
-		pohWork(stock)
-
-	if myargs.percentofflow is True:
-		polWork(stock)
-		
-	if myargs.percentofaverage is True:
-		poaWork(stock)
+		poh = offHigh(stock)
+		print poh
 
 	if myargs.debug is True:
 		debug = stock.get_price_sales()
 		print debug
 
 
-for item in selections:
-	print item, output[counter]
-	counter = counter + 1
 
-for item in futures.selections:
-	print item, futures.output[counter2]
-	counter2 = counter2 + 1
+
+
+#print myargs.ticker, realtimequote, volume 
