@@ -6,25 +6,6 @@ from yahoo_finance import Share
 import yahoofinancecalc
 
 
-def getPercentChange(stock):
-	#stock = Share(myargs.ticker)
-	change = float(stock.get_change())
-	getopen = float(stock.get_open())
-
-	if (change is not None) and (getopen is not None):
-		tickerPercentChange = (change/getopen)*100
-		tickerPercentChange = round(tickerPercentChange, 2)
-		return tickerPercentChange
-	else:
-		return 0
-
-def offHigh(stock):
-	myYearHigh = stock.get_year_high()
-	realtimequote = realtime.scraper(myargs.ticker)
-	oh1 = float(myYearHigh) - (float(realtimequote))
-	percentOffHigh = str(round((oh1 / float(realtimequote))*100, 2))+ "%"
-	return percentOffHigh
-
 def getArgs():
 	parser = ArgumentParser(description = 'Get Realtime ticker from Yahoo-Finance')
 	parser.add_argument("-t", "--ticker", required=False, dest="ticker", help="ticker for lookup", metavar="ticker")
@@ -54,6 +35,8 @@ def getArgs():
 	parser.add_argument("-peg","--pegratio", dest="peg", help="PEG ratio", default=False, action="store_true")
 	parser.add_argument("-pc","--percentchange", dest="percentchange", help="Percent change", default=False, action="store_true")
 	parser.add_argument("-poh","--percentoffhigh", dest="percentoffhigh", help="Percent off high", default=False, action="store_true")
+	parser.add_argument("-pol","--percentofflow", dest="percentofflow", help="Percent off low", default=False, action="store_true")
+	parser.add_argument("-poa","--percentofaverage", dest="percentofaverage", help="Percent of average volume", default=False, action="store_true")
 	parser.add_argument("-d","--debug", dest="debug", help="debug", default=False, action="store_true")
 	args = parser.parse_args()
 	return args
@@ -161,12 +144,27 @@ if myargs.ticker is not None:
 		print peg
 
 	if myargs.percentchange is True:
-		percentchange = getPercentChange(stock)
+		change = stock.get_change()
+		getopen = stock.get_open()
+		percentchange = yahoofinancecalc.getPercentChange(stock, change, getopen)
 		print str(percentchange) + "%"
 
 	if myargs.percentoffhigh is True:
-		poh = offHigh(stock)
+		realtimequote = realtime.scraper(myargs.ticker)
+		poh = yahoofinancecalc.offHigh(stock, realtimequote)
 		print poh
+
+	if myargs.percentofflow is True:
+		realtimequote = realtime.scraper(myargs.ticker)
+		yearlow = stock.get_year_low()
+		pol = yahoofinancecalc.offlow(stock, realtimequote, yearlow)
+		print pol
+
+	if myargs.percentofaverage is True:
+		avgvolume = stock.get_avg_daily_volume()
+		volume = stock.get_volume()
+		poa = yahoofinancecalc.ofAverageVolume(stock, avgvolume, volume)
+		print str(poa) + "%" 
 
 	if myargs.debug is True:
 		debug = stock.get_price_sales()
