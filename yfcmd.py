@@ -4,6 +4,7 @@ import realtime
 from argparse import ArgumentParser
 from yahoo_finance import Share
 import yahoofinancecalc
+import re
 
 
 def getArgs():
@@ -42,6 +43,8 @@ def getArgs():
 	return args
 
 myargs = getArgs()
+output = []
+selections = []
 
 if myargs.futures is True:
 	mySoup = futures.getSoup()
@@ -53,8 +56,9 @@ if myargs.ticker is not None:
 	stock = Share(myargs.ticker)
 	
 	if myargs.realtime is True:
-		realtimequote = realtime.scraper(myargs.ticker)
-		print realtimequote
+		selections.append('Realtime: ')
+		subrealtimequote = realtime.scraper(myargs.ticker)
+		output.append(subrealtimequote)
 
 	if myargs.price is True:
 		price = stock.get_price()
@@ -62,10 +66,15 @@ if myargs.ticker is not None:
 
 	if myargs.volume is True:
 		volume = stock.get_volume()
-		print volume
+		output.append(volume)
+		selections.append('Volume: ')
+		print output
+		
 
 	if myargs.change is True:
 		change = stock.get_change()
+		output.append(change)
+		selections.append('Change: ')
 		print change
 
 	if myargs.avgvol is True:
@@ -170,6 +179,17 @@ if myargs.ticker is not None:
 		debug = stock.get_price_sales()
 		print debug
 
+counter = 0
+for item in selections:
+	print item, output[counter]
+	counter = counter + 1
+
+# counter = 0
+# for item in output:
+# 	print item
+# 	for item in selections:
+# 		print item[counter]
+# 		counter = counter + 1
 
 
 
